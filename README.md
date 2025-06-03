@@ -7,7 +7,6 @@ Ce projet simule un système de gestion de comptes bancaires, similaire à ce qu
 ...
 
 # Installation
-...
 Installer Visual Studio Code.
 Installer les extensions suivantes : IBM Z Open Editor, Zowe explorer, Cobol et Wsl.
 
@@ -27,11 +26,9 @@ code .
 Une fois lancé, installer les extensions si nécesaires.
 
 # Créer un fichier
-...
 Dans vscode, cliquer sur File > New File.. et enregistrer dans le dossier du projet.
 
 # Lancement du projet
-...
 Ouvrir le terminal. 
 Aller dans le dossier du projet
 ```bash
