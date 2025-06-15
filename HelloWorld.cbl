@@ -2,21 +2,42 @@
        PROGRAM-ID. HelloWorld.
        AUTHOR. BG
 
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+       SELECT CLIENT-FILE ASSIGN TO "clients.txt"
+         ORGANIZATION IS LINE SEQUENTIAL
+         FILE STATUS WS-FSC.
+ 
        DATA DIVISION.
+       FILE SECTION.
+       FD CLIENT-FILE.
+       01 CLIENT-LINE.
+           05 DD-NAME PIC X(50).
+           05 DD-BIRTHDAY PIC X(50).
+           05 DD-LOCATION PIC X(50).
+           05 DD-AMOUNT PIC 9(9).
+       
        WORKING-STORAGE SECTION.
-       01 WS-NAME PIC X(12) VALUE "Jean Dupont".
        01 WS-CHOICE PIC 9(1) VALUE 1.
        01 WS-FIN-PROG PIC A(1).
        01 WS-LOOP PIC X VALUE 'N'.
            88 OUT-MENU-CHOICE-TRUE VALUE 'O'.
            88 OUT-MENU-CHOICE-FALSE VALUE 'N'.
+       01 WS-EOF-FLAG PIC X VALUE "F".
+           88 WS-EOF VALUE "T".
+       01 WS-NAME PIC X(50).
+       01 WS-BIRTHDAY PIC X(50).
+       01 WS-LOCATION PIC X(50).
+       01 WS-AMOUNT PIC 9(9).
+       01 WS-FSC PIC X(2).
 
        PROCEDURE DIVISION.
            DISPLAY 'Bienvenu.'.
            DISPLAY "".
            
            PERFORM PROC-MENU.
-           PERFORM PROC-SELECT-MENU
+           PERFORM PROC-SELECT-MENU.
 
            IF WS-CHOICE NOT = 0
               PERFORM PROC-CONTINUE UNTIL WS-FIN-PROG = "O" 
@@ -56,7 +77,7 @@
                  WHEN 0
                     DISPLAY "Arrêt du programme."
                  WHEN 1
-                    PERFORM PROC-EXTRACT-STRING
+                    PERFORM PROC-READ-FILE
                     SET OUT-MENU-CHOICE-TRUE TO TRUE
                  WHEN OTHER
                     DISPLAY "Choix invalide."
@@ -70,26 +91,25 @@
            DISPLAY "       MENU       "
            DISPLAY "##################"
            DISPLAY ""
-           DISPLAY "MANIPULATION DE STRING"
-           DISPLAY "1 - Extraction de chaine."
-           DISPLAY "2 - Recherche d'un mot dans une chaine."
+           DISPLAY "MANIPULATION DE FICHIERS"
+           DISPLAY "1 - Lecture d'un fichier."
+           DISPLAY "2 - Création d'un fichier."
+           DISPLAY "3 - Copier un fichier."
+           DISPLAY "4 - Afficher les soldes positifs."
+           DISPLAY "5 - Trier par ordre décroissant de solde."
            DISPLAY ""
-           DISPLAY "MANIPULATION DE TABLEAU"
-           DISPLAY "3 - Ajout de valeur à un tableau."
-           DISPLAY "4 - Rechercher un élément (avec un indice)."
-           DISPLAY "5 - Trier les valeurs dans un tableau."
-           DISPLAY "6 - Supprimer des valeurs dans un tableau."
-           DISPLAY "7 - Comtper les doublons du tableau."
+           DISPLAY "GESTION D'UN BULETTIN SCOLAIRE"
+           DISPLAY "6 - Ajouter un étudiant."
+           DISPLAY "7 - Rechercher un étudiant (avec et sans indice)."
+           DISPLAY "8 - Trier le bulettin par nom."
+           DISPLAY "9 - Supprimer des valeurs dans un tableau."
+           DISPLAY "10 - Comtper les doublons du tableau."
            DISPLAY ""
            DISPLAY "CALCULS ARITHMETIQUES"
-           DISPLAY "8 - Somme, moyenne, max, min."
-           DISPLAY "9 - Déterminer si une année est bissextile."
+           DISPLAY "11 - Somme, moyenne, max, min."
+           DISPLAY "12 - Déterminer si une année est bissextile."
+           DISPLAY ""
            DISPLAY "0 - Quitter."
-           EXIT.
-
-       PROC-EXTRACT-STRING.
-           DISPLAY "EXTRACTION DE CHAINE"
-           DISPLAY "Entrer votre nom : "
            EXIT.
 
        PROC-SEARCH.
@@ -115,4 +135,35 @@
 
        PROC-IS-LEAP-YEAR.
            DISPLAY "Vérifier si une année est bissextile..."
+           EXIT.
+
+       PROC-READ-FILE.
+           OPEN INPUT CLIENT-FILE
+       
+           READ CLIENT-FILE
+           PERFORM UNTIL WS-EOF
+              
+              PERFORM PROC-LOOP-FILE
+           END-PERFORM
+       
+           CLOSE CLIENT-FILE
+           EXIT.
+       
+       PROC-LOOP-FILE.
+           READ CLIENT-FILE
+              AT END SET WS-EOF TO TRUE
+              NOT AT END
+                 MOVE DD-NAME TO WS-NAME
+                 MOVE DD-BIRTHDAY TO WS-BIRTHDAY
+                 MOVE DD-LOCATION TO WS-LOCATION
+                 MOVE DD-AMOUNT TO WS-AMOUNT
+                 PERFORM PROC-DISPLAY-USERS
+           END-READ
+           EXIT.
+
+       PROC-DISPLAY-USERS.
+           DISPLAY "NOM : " WS-NAME
+           DISPLAY "NAISSANCE : " WS-BIRTHDAY
+           DISPLAY "LOCALISATION : " WS-LOCATION
+           DISPLAY "MONTANT : " WS-AMOUNT
            EXIT.
