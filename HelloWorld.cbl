@@ -12,11 +12,7 @@
        DATA DIVISION.
        FILE SECTION.
        FD CLIENT-FILE.
-       01 CLIENT-LINE.
-           05 DD-NAME PIC X(50).
-           05 DD-BIRTHDAY PIC X(50).
-           05 DD-LOCATION PIC X(50).
-           05 DD-AMOUNT PIC 9(9).
+       01 CLIENT-LINE PIC X(100).
        
        WORKING-STORAGE SECTION.
        01 WS-CHOICE PIC 9(1) VALUE 1.
@@ -29,7 +25,8 @@
        01 WS-NAME PIC X(50).
        01 WS-BIRTHDAY PIC X(50).
        01 WS-LOCATION PIC X(50).
-       01 WS-AMOUNT PIC 9(9).
+       01 WS-AMOUNT PIC +++B+++B+++B++9.99.
+       01 WS-AMOUNT-DISPLAY PIC X(30).
        01 WS-FSC PIC X(2).
 
        PROCEDURE DIVISION.
@@ -153,10 +150,9 @@
            READ CLIENT-FILE
               AT END SET WS-EOF TO TRUE
               NOT AT END
-                 MOVE DD-NAME TO WS-NAME
-                 MOVE DD-BIRTHDAY TO WS-BIRTHDAY
-                 MOVE DD-LOCATION TO WS-LOCATION
-                 MOVE DD-AMOUNT TO WS-AMOUNT
+                 INSPECT CLIENT-LINE REPLACING ALL ";" BY "|"
+                 UNSTRING CLIENT-LINE DELIMITED BY "|"
+                     INTO WS-NAME, WS-BIRTHDAY, WS-LOCATION, WS-AMOUNT
                  PERFORM PROC-DISPLAY-USERS
            END-READ
            EXIT.
@@ -165,5 +161,6 @@
            DISPLAY "NOM : " WS-NAME
            DISPLAY "NAISSANCE : " WS-BIRTHDAY
            DISPLAY "LOCALISATION : " WS-LOCATION
-           DISPLAY "MONTANT : " WS-AMOUNT
+           DISPLAY "MONTANT1 :" WS-AMOUNT "$"
+           DISPLAY ""
            EXIT.
