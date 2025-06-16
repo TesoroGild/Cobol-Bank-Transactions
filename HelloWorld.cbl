@@ -38,31 +38,28 @@
 
            IF WS-CHOICE NOT = 0
               PERFORM PROC-CONTINUE UNTIL WS-FIN-PROG = "O" 
-              OR WS-FIN-PROG = "N"
-              .
+              OR WS-FIN-PROG = "N".
 
            DISPLAY "".
            DISPLAY "A bientôt!".
            STOP RUN.
 
        PROC-CONTINUE.
-      *     PERFORM UNTIL WS-FIN-PROG NOT = "O" OR WS-FIN-PROG NOT = "N"
-              DISPLAY "Voulez-vous continuer ? (O/N)".
+           DISPLAY "Voulez-vous continuer ? (O/N)".
    
-              ACCEPT WS-FIN-PROG.
+           ACCEPT WS-FIN-PROG.
    
-              IF WS-FIN-PROG = "N"
-                  DISPLAY "Arrêt du programme."
+           IF WS-FIN-PROG = "N"
+               DISPLAY "Arrêt du programme."
+           ELSE
+              IF WS-FIN-PROG = "O"
+                 SET OUT-MENU-CHOICE-FALSE TO TRUE
+                 PERFORM PROC-SELECT-MENU
               ELSE
-                 IF WS-FIN-PROG = "O"
-                    SET OUT-MENU-CHOICE-FALSE TO TRUE
-                    PERFORM PROC-SELECT-MENU
-                 ELSE
-                    DISPLAY "Choix invalide."
-                    DISPLAY "Sélectionner une valeur entre O et N."
-                 END-IF
-              END-IF.
-      *     END-PERFORM
+                 DISPLAY "Choix invalide."
+                 DISPLAY "Sélectionner une valeur entre O et N."
+              END-IF
+           END-IF.
            EXIT.
            
        PROC-SELECT-MENU.
@@ -107,11 +104,6 @@
            DISPLAY "12 - Déterminer si une année est bissextile."
            DISPLAY ""
            DISPLAY "0 - Quitter."
-           EXIT.
-
-       PROC-SEARCH.
-      *    COMPTER LE NOMBRE ET RECHERCHE DE MOTS 
-           DISPLAY "Entrer votre phrase : "
            EXIT.
 
        PROC-SCOOL-MANAGMENT.
