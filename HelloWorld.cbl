@@ -13,6 +13,9 @@
          ORGANIZATION IS LINE SEQUENTIAL
          ACCESS MODE IS SEQUENTIAL
          FILE STATUS WS-FSS.
+
+       SELECT FILE-IN  ASSIGN TO "etudiants.txt".
+       SELECT FILE-OUT ASSIGN TO "copy.txt".
  
        DATA DIVISION.
        FILE SECTION.
@@ -21,14 +24,19 @@
        FD STUDENTS-FILE
            RECORD CONTAINS 50 CHARACTERS
            BLOCK CONTAINS 800 CHARACTERS
-           DATA RECORD IS DD-STUDENT-RECORD.
-       01 DD-STUDENT-RECORD.
-           05 DD-ST-NAME PIC X(20).
-           05 DD-ST-MATHS PIC ZZ9.
-           05 DD-ST-PHYS PIC ZZ9.
-           05 DD-ST-SVT PIC ZZ9.
-           05 DD-ST-PHILO PIC ZZ9.
-           05 FILLER PIC X(18) VALUE SPACES.
+           DATA RECORD IS FS-STUDENT-RECORD.
+       01 FS-STUDENT-RECORD.
+           05 FS-ST-NAME PIC X(20).
+           05 FS-ST-MATHS PIC ZZ9.
+           05 FS-ST-PHYS PIC ZZ9.
+           05 FS-ST-SVT PIC ZZ9.
+           05 FS-ST-PHILO PIC ZZ9.
+      *     05 FILLER PIC X(18) VALUE SPACES.
+        
+       FD FILE-IN.
+       01 FS-IN-RECORD PIC X(100).
+       FD FILE-OUT.
+       01 FS-OUT-RECORD PIC X(100).
        
        WORKING-STORAGE SECTION.
        01 WS-CHOICE PIC 9(1) VALUE 1.
@@ -98,6 +106,9 @@
                  WHEN 2
                     PERFORM PROC-SCHOOL-TRANSCRIPT
                     SET OUT-MENU-CHOICE-TRUE TO TRUE
+                 WHEN 3
+                    PERFORM PROC-COPY-PASTE
+                    SET OUT-MENU-CHOICE-TRUE TO TRUE
                  WHEN OTHER
                     DISPLAY "Choix invalide."
                     DISPLAY "Sélectionner une valeur entre 1 et 9."
@@ -114,8 +125,7 @@
            DISPLAY "1 - Lecture d'un fichier."
            DISPLAY "2 - Entrer les notes des étudiants."
            DISPLAY "3 - Copier un fichier."
-           DISPLAY "4 - Afficher les soldes positifs."
-           DISPLAY "5 - Trier par ordre décroissant de solde."
+           DISPLAY "4 - Trier par ordre décroissant de solde."
            DISPLAY " "
            DISPLAY "GESTION D'UN BULETTIN SCOLAIRE"
            DISPLAY "6 - Ajouter un étudiant."
@@ -184,22 +194,22 @@
 
        PROC-SCHOOL-TRANSCRIPT.
            OPEN OUTPUT STUDENTS-FILE
-           INITIALIZE  DD-STUDENT-RECORD
+           INITIALIZE  FS-STUDENT-RECORD
 
-           PERFORM UNTIL DD-ST-NAME = "0"
+           PERFORM UNTIL FS-ST-NAME = "0"
               DISPLAY " "
               DISPLAY "Nom de l'étudiant : "
-              ACCEPT DD-ST-NAME
+              ACCEPT FS-ST-NAME
 
-              IF DD-ST-NAME NOT = "0"
+              IF FS-ST-NAME NOT = "0"
                  DISPLAY "    Mathématiques : "
-                 ACCEPT DD-ST-MATHS
+                 ACCEPT FS-ST-MATHS
                  DISPLAY "    Physiques : "
-                 ACCEPT DD-ST-PHYS
+                 ACCEPT FS-ST-PHYS
                  DISPLAY "    SVT : "
-                 ACCEPT DD-ST-SVT
+                 ACCEPT FS-ST-SVT
                  DISPLAY "    Philosophie : "
-                 ACCEPT DD-ST-PHILO
+                 ACCEPT FS-ST-PHILO
                  PERFORM PROC-WRITE
               END-IF   
               DISPLAY " "           
@@ -209,15 +219,29 @@
            EXIT.
 
        PROC-WRITE.
-           DISPLAY "**********************"
-           DISPLAY DD-ST-MATHS
-           DISPLAY DD-ST-PHYS
-           DISPLAY DD-ST-SVT
-           DISPLAY DD-ST-PHILO
-           DISPLAY "**********************"
-           WRITE DD-STUDENT-RECORD
+           WRITE FS-STUDENT-RECORD
 
            IF WS-FSS NOT EQUAL ZERO
               DISPLAY "Erreur lors de l'ajout"
            END-IF
+           EXIT.
+
+       PROC-COPY-PASTE.
+      *    VERIFIER UNE 1ERE FOIS (VIDEO SUR LES BOUCLES)
+           OPEN INPUT FILE-IN
+              OUTPUT FILE-OUT
+
+           PERFORM UNTIL WS-EOF
+              READ FILE-IN
+                 AT END
+                    SET WS-EOF TO TRUE
+                    DISPLAY "Copie effectué avec succès!"
+                    DISPLAY " "
+                 NOT AT END
+                    MOVE FS-IN-RECORD TO FS-OUT-RECORD
+                    WRITE FS-OUT-RECORD
+              END-READ
+           END-PERFORM
+
+           CLOSE FILE-IN FILE-OUT
            EXIT.
