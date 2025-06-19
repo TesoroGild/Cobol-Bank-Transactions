@@ -324,18 +324,18 @@
            EXIT.
 
        PROC-SCHOOL-MENU.
-           DISPLAY "---------------------------------------------------"
-           DISPLAY "|                Tableau de bord                  |"
-           DISPLAY "---------------------------------------------------"
-           DISPLAY "|                                                 |"
-           DISPLAY "| 1 - Rechercher un étudiant (± indice).          |"
-           DISPLAY "| 2 - Trier le bulettin par nom, note.            |"
-           DISPLAY "| 3 - Supprimer des valeurs dans un tableau.      |"
-           DISPLAY "| 4 - Comtper les doublons du tableau.            |"
-           DISPLAY "| 5 - Empêcher les doublons...                    |"
-           DISPLAY "| 6 - Somme, moyenne, max, min                    |"
-           DISPLAY "|                                                 |"
-           DISPLAY "---------------------------------------------------"
+           DISPLAY "--------------------------------------------------"
+           DISPLAY "|                Tableau de bord                 |"
+           DISPLAY "|------------------------------------------------|"
+           DISPLAY "|                                                |"
+           DISPLAY "| 1 - Rechercher un étudiant (avec/sans indice). |"
+           DISPLAY "| 2 - Trier le bulletin par nom, note.           |"
+           DISPLAY "| 3 - Supprimer des valeurs dans un tableau.     |"
+           DISPLAY "| 4 - Comtper les doublons du tableau.           |"
+           DISPLAY "| 5 - Empêcher les doublons.                     |"
+           DISPLAY "| 6 - Somme, moyenne, max, min.                  |"
+           DISPLAY "|                                                |"
+           DISPLAY "--------------------------------------------------"
            DISPLAY "Que voulez-vous faire?"
            EXIT.
 
