@@ -105,6 +105,9 @@
 
        01 WS-SCHOOL-CHOICE PIC 9(1) VALUE 1.
 
+       01 WS-YEAR PIC 9(4).
+       01 WS-RESLT-DIV PIC 9(4).
+
       *#################################################################
       *    PROCEDURE (MAIN)
       *#################################################################
@@ -167,6 +170,9 @@
                     SET OUT-MENU-CHOICE-TRUE TO TRUE
                  WHEN 5
                     PERFORM PROC-SCOOL-MANAGMENT
+                    SET OUT-MENU-CHOICE-TRUE TO TRUE
+                 WHEN 6
+                    PERFORM PROC-LEAP-YEAR
                     SET OUT-MENU-CHOICE-TRUE TO TRUE
                  WHEN OTHER
                     DISPLAY "Choix invalide."
@@ -265,7 +271,6 @@
            EXIT.
 
        PROC-COPY-PASTE.
-      *    VERIFIER UNE 1ERE FOIS (VIDEO SUR LES BOUCLES)
            OPEN INPUT FILE-IN
               OUTPUT FILE-OUT
 
@@ -337,6 +342,19 @@
            DISPLAY "|                                                |"
            DISPLAY "--------------------------------------------------"
            DISPLAY "Que voulez-vous faire?"
+           EXIT.
+
+       PROC-LEAP-YEAR.
+           DISPLAY "Année : "
+           ACCEPT WS-YEAR
+
+           IF FUNCTION MOD (WS-YEAR, 4) = 0
+              AND (FUNCTION MOD (WS-YEAR, 100) NOT = 0
+                 OR FUNCTION MOD (WS-YEAR, 400) = 0)
+              DISPLAY WS-YEAR " est une année bissextile."
+           ELSE
+              DISPLAY WS-YEAR " n'est pas une année bissextile."
+           END-IF
            EXIT.
 
 
