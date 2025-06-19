@@ -1,22 +1,43 @@
+      *#################################################################
+      *    IDENTIFICATION
+      *#################################################################
        IDENTIFICATION DIVISION.
        PROGRAM-ID. HelloWorld.
        AUTHOR. BG
 
+
+      *#################################################################
+      *    ENVIRONMENT
+      *#################################################################
        ENVIRONMENT DIVISION.
        INPUT-OUTPUT SECTION.
        FILE-CONTROL.
-       SELECT CLIENTS-FILE ASSIGN TO "clients.txt"
-         ORGANIZATION IS LINE SEQUENTIAL
-         FILE STATUS WS-FSC.
+           SELECT CLIENTS-FILE ASSIGN TO "clients.txt"
+              ORGANIZATION IS LINE SEQUENTIAL
+              FILE STATUS FC-CLI.
+    
+           SELECT STUDENTS-FILE ASSIGN TO "etudiants.txt"
+              ORGANIZATION IS LINE SEQUENTIAL
+              ACCESS MODE IS SEQUENTIAL
+              FILE STATUS FC-STU.
+    
+           SELECT FILE-IN  ASSIGN TO "etudiants.txt".
+           SELECT FILE-OUT ASSIGN TO "copy.txt".
+    
+           SELECT FILE-TO-SORT ASSIGN TO "filetosort.txt"
+              ORGANIZATION IS LINE SEQUENTIAL
+              FILE STATUS FC-TOSTR.
 
-       SELECT STUDENTS-FILE ASSIGN TO "etudiants.txt"
-         ORGANIZATION IS LINE SEQUENTIAL
-         ACCESS MODE IS SEQUENTIAL
-         FILE STATUS WS-FSS.
+           SELECT FILE-SORTED ASSIGN TO "filesorted.txt"
+              ORGANIZATION IS LINE SEQUENTIAL
+              FILE STATUS FC-SORT.
 
-       SELECT FILE-IN  ASSIGN TO "etudiants.txt".
-       SELECT FILE-OUT ASSIGN TO "copy.txt".
+           SELECT WORKFILE ASSIGN TO "OHOOOOO".
  
+
+      *#################################################################
+      *    DATA
+      *#################################################################
        DATA DIVISION.
        FILE SECTION.
        FD CLIENTS-FILE.
@@ -31,13 +52,29 @@
            05 FS-ST-PHYS PIC ZZ9.
            05 FS-ST-SVT PIC ZZ9.
            05 FS-ST-PHILO PIC ZZ9.
-      *     05 FILLER PIC X(18) VALUE SPACES.
+           05 FILLER PIC X(18) VALUE SPACES.
         
        FD FILE-IN.
        01 FS-IN-RECORD PIC X(100).
        FD FILE-OUT.
        01 FS-OUT-RECORD PIC X(100).
+
+       FD FILE-TO-SORT.
+       01 FS-LINE1 PIC X(100).
+       FD FILE-SORTED.
+       01 FS-LINE2 PIC X(100).
+       SD WORKFILE.
+       01 FS-SORT-RECORD.
+           05 FS-SRT-ID PIC 9999.
+           05 FS-SRT-NAME PIC X(30).
+           05 FS-SRT-COUNTRY PIC X(30).
+           05 FS-SRT-AMOUNT PIC S9(11)V99.
+           05 FILLER PIC X(23).
        
+
+      *#################################################################
+      *    WORKING-STORAGE
+      *################################################################# 
        WORKING-STORAGE SECTION.
        01 WS-CHOICE PIC 9(1) VALUE 1.
        01 WS-FIN-PROG PIC A(1).
@@ -47,7 +84,7 @@
        01 WS-LOCATION PIC X(50).
        01 WS-AMOUNT PIC +++B+++B+++B++9.99.
        01 WS-AMOUNT-DISPLAY PIC X(30).
-       01 WS-FSC PIC X(2).
+       01 FC-CLI PIC X(2).
 
        01 WS-LOOP PIC X VALUE 'N'.
            88 OUT-MENU-CHOICE-TRUE VALUE 'O'.
@@ -57,8 +94,19 @@
            88 WS-EOF VALUE "T".
            88 WS-NOT-EOF VALUE "F".
        
-       01 WS-FSS PIC 9(2).
+       01 FC-STU PIC 9(2).
+       01 WS-NB-ESPACES PIC 99.
 
+       01 FC-TOSTR PIC X(02).
+       01 FC-SORT PIC X(02).
+
+       01 WS-TEST1 PIC X(13).
+       01 WS-TEST2 PIC +ZZZZZZZZZZ.99.
+
+
+      *#################################################################
+      *    PROCEDURE (MAIN)
+      *#################################################################
        PROCEDURE DIVISION.
            DISPLAY 'Bienvenu.'.
            DISPLAY " ".
@@ -74,6 +122,10 @@
            DISPLAY "A bientôt!".
            STOP RUN.
 
+
+      *#################################################################
+      *    FUNCTIONS
+      *#################################################################
        PROC-CONTINUE.
            DISPLAY "Voulez-vous continuer ? (O/N)".
    
@@ -109,6 +161,12 @@
                  WHEN 3
                     PERFORM PROC-COPY-PASTE
                     SET OUT-MENU-CHOICE-TRUE TO TRUE
+                 WHEN 4
+                    PERFORM PROC-SORT
+                    SET OUT-MENU-CHOICE-TRUE TO TRUE
+                 WHEN 5
+                    PERFORM PROC-SORT
+                    SET OUT-MENU-CHOICE-TRUE TO TRUE
                  WHEN OTHER
                     DISPLAY "Choix invalide."
                     DISPLAY "Sélectionner une valeur entre 1 et 9."
@@ -123,12 +181,12 @@
            DISPLAY " "
            DISPLAY "MANIPULATION DE FICHIERS"
            DISPLAY "1 - Lecture d'un fichier."
-           DISPLAY "2 - Entrer les notes des étudiants."
-           DISPLAY "3 - Copier un fichier."
-           DISPLAY "4 - Trier par ordre décroissant de solde."
+           DISPLAY "2 - Enregistrement des notes des étudiants."
+           DISPLAY "3 - Copie d'un fichier."
+           DISPLAY "4 - Triage par ordre croissant."
            DISPLAY " "
            DISPLAY "GESTION D'UN BULETTIN SCOLAIRE"
-           DISPLAY "6 - Ajouter un étudiant."
+           DISPLAY "5 - Gestion d'un bulettin scolaire."
            DISPLAY "7 - Rechercher un étudiant (avec et sans indice)."
            DISPLAY "8 - Trier le bulettin par nom."
            DISPLAY "9 - Supprimer des valeurs dans un tableau."
@@ -142,12 +200,6 @@
            EXIT.
 
        PROC-SCOOL-MANAGMENT.
-           DISPLAY "Nom de l'étudiant : "
-           DISPLAY "Maths : "
-           DISPLAY "Anglais : "
-           DISPLAY "Physique : "
-           DISPLAY "Histoire : "
-           DISPLAY "Philosophie : "
       *    TODO   
            DISPLAY "Rechercher un étudiant..."  
            DISPLAY "Trier le tableau..."
@@ -221,7 +273,7 @@
        PROC-WRITE.
            WRITE FS-STUDENT-RECORD
 
-           IF WS-FSS NOT EQUAL ZERO
+           IF FC-STU NOT EQUAL ZERO
               DISPLAY "Erreur lors de l'ajout"
            END-IF
            EXIT.
@@ -239,9 +291,46 @@
                     DISPLAY " "
                  NOT AT END
                     MOVE FS-IN-RECORD TO FS-OUT-RECORD
-                    WRITE FS-OUT-RECORD
+                    
+                    IF FS-OUT-RECORD NOT = SPACES
+                       WRITE FS-OUT-RECORD
+                    END-IF
               END-READ
            END-PERFORM
 
            CLOSE FILE-IN FILE-OUT
            EXIT.
+
+       PROC-SORT.
+           OPEN INPUT FILE-TO-SORT
+           IF FC-TOSTR NOT = "00"
+              DISPLAY "Erreur à l'ouverture"
+              DISPLAY "FS FILE TO SORT: " FC-TOSTR
+           END-IF
+
+           OPEN OUTPUT FILE-SORTED
+           IF FC-SORT NOT = "00"
+              DISPLAY "Erreur à l'ouverture"
+              DISPLAY "FS FILE SORTED: " FC-SORT
+           END-IF
+
+      *    KEY = FS-SRT-ID, FS-SRT-NAME, FS-SRT-COUNTRY, FS-SRT-AMOUNT
+           SORT WORKFILE ON ASCENDING KEY FS-SRT-ID
+              USING FILE-TO-SORT
+              GIVING FILE-SORTED
+
+           CLOSE FILE-TO-SORT
+           CLOSE FILE-SORTED
+           EXIT.
+
+       
+       PROC-REPORT-CARD.
+           
+           EXIT.
+
+
+      *    TODO
+      *    APPROFONDISSEMENT/AMELIORATION
+      *    2- ARRETER D'ECRIRE APRES LA DERNIERE NT, PAS DE DE NEW LINE
+      *    3- PAS DE LIGNE SUPPLEMENTAIRE APRES LA DERNIERE LIGNE
+      *    4- TRIER LES CARACTERES SPECIAUX ET LES SOLDES
