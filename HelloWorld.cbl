@@ -103,6 +103,7 @@
        01 WS-TEST1 PIC X(13).
        01 WS-TEST2 PIC +ZZZZZZZZZZ.99.
 
+       01 WS-SCHOOL-CHOICE PIC 9(1) VALUE 1.
 
       *#################################################################
       *    PROCEDURE (MAIN)
@@ -165,7 +166,7 @@
                     PERFORM PROC-SORT
                     SET OUT-MENU-CHOICE-TRUE TO TRUE
                  WHEN 5
-                    PERFORM PROC-SORT
+                    PERFORM PROC-SCOOL-MANAGMENT
                     SET OUT-MENU-CHOICE-TRUE TO TRUE
                  WHEN OTHER
                     DISPLAY "Choix invalide."
@@ -185,28 +186,13 @@
            DISPLAY "3 - Copie d'un fichier."
            DISPLAY "4 - Triage par ordre croissant."
            DISPLAY " "
-           DISPLAY "GESTION D'UN BULETTIN SCOLAIRE"
-           DISPLAY "5 - Gestion d'un bulettin scolaire."
-           DISPLAY "7 - Rechercher un étudiant (avec et sans indice)."
-           DISPLAY "8 - Trier le bulettin par nom."
-           DISPLAY "9 - Supprimer des valeurs dans un tableau."
-           DISPLAY "10 - Comtper les doublons du tableau."
+           DISPLAY "GESTION D'UN TABLEAU"
+           DISPLAY "5 - Bulettin scolaire." 
            DISPLAY " "
            DISPLAY "CALCULS ARITHMETIQUES"
-           DISPLAY "11 - Somme, moyenne, max, min."
-           DISPLAY "12 - Déterminer si une année est bissextile."
+           DISPLAY "6 - Déterminer si une année est bissextile."
            DISPLAY " "
            DISPLAY "0 - Quitter."
-           EXIT.
-
-       PROC-SCOOL-MANAGMENT.
-      *    TODO   
-           DISPLAY "Rechercher un étudiant..."  
-           DISPLAY "Trier le tableau..."
-           DISPLAY "Supprimer un étudiant..."
-           DISPLAY "Empêcher les doublons..."
-           DISPLAY "Moyenne des cours..."
-           DISPLAY "Meilleure/pire note dans un cours..."
            EXIT.
 
        PROC-IS-LEAP-YEAR.
@@ -324,13 +310,38 @@
            EXIT.
 
        
-       PROC-REPORT-CARD.
-           
+       PROC-SCOOL-MANAGMENT.
+           DISPLAY "Entrer chaque étudiant avec ses notes."
+
+
+           DISPLAY "Etudiant : "
+           DISPLAY "INF1 : "
+           DISPLAY "INF2 : "
+           DISPLAY "INF3 : "
+
+           PERFORM PROC-SCHOOL-MENU
+           ACCEPT WS-SCHOOL-CHOICE
+           EXIT.
+
+       PROC-SCHOOL-MENU.
+           DISPLAY "---------------------------------------------------"
+           DISPLAY "|                Tableau de bord                  |"
+           DISPLAY "---------------------------------------------------"
+           DISPLAY "|                                                 |"
+           DISPLAY "| 1 - Rechercher un étudiant (± indice).          |"
+           DISPLAY "| 2 - Trier le bulettin par nom, note.            |"
+           DISPLAY "| 3 - Supprimer des valeurs dans un tableau.      |"
+           DISPLAY "| 4 - Comtper les doublons du tableau.            |"
+           DISPLAY "| 5 - Empêcher les doublons...                    |"
+           DISPLAY "| 6 - Somme, moyenne, max, min                    |"
+           DISPLAY "|                                                 |"
+           DISPLAY "---------------------------------------------------"
+           DISPLAY "Que voulez-vous faire?"
            EXIT.
 
 
       *    TODO
-      *    APPROFONDISSEMENT/AMELIORATION
-      *    2- ARRETER D'ECRIRE APRES LA DERNIERE NT, PAS DE DE NEW LINE
+      *    APPROFONDISSEMENT/AMELIORATION (VERIF TOUS LES INPUTS)
+      *    2- ARRETER D'ECRIRE APRES LA DERNIERE NOT, PAS DE NEW LINE
       *    3- PAS DE LIGNE SUPPLEMENTAIRE APRES LA DERNIERE LIGNE
       *    4- TRIER LES CARACTERES SPECIAUX ET LES SOLDES
