@@ -103,10 +103,25 @@
        01 WS-TEST1 PIC X(13).
        01 WS-TEST2 PIC +ZZZZZZZZZZ.99.
 
-       01 WS-SCHOOL-CHOICE PIC 9(1) VALUE 1.
+       01 WS-STORE-CHOICE PIC 9(1) VALUE 1.
 
        01 WS-YEAR PIC 9(4).
        01 WS-RESLT-DIV PIC 9(4).
+
+       01 WS-SCH-LOOP PIC X VALUE 'N'.
+           88 WS-OUT-OF-SCH-LOOP VALUE 'O'.
+           88 WS-NOUT-OF-SCH-LOOP VALUE 'N'.
+
+       01 TAB-ITEMS.
+           05 WS-ITEMS-RECORD OCCURS 4 TIMES.
+              10 WS-IT-NAME PIC X(30).
+              10 WS-IT-PRICE PIC ZZZ9.99.
+              10 WS-IT-QTE PIC ZZ9.
+              10 WS-IT-RATE PIC 9V9.
+       01 WS-TAB-IND PIC 9 VALUE 4.
+       01 WS-CPT-TAB PIC 9 VALUE 1.
+       01 I PIC 99 VALUE 99.
+
 
       *#################################################################
       *    PROCEDURE (MAIN)
@@ -169,14 +184,14 @@
                     PERFORM PROC-SORT
                     SET OUT-MENU-CHOICE-TRUE TO TRUE
                  WHEN 5
-                    PERFORM PROC-SCOOL-MANAGMENT
+                    PERFORM PROC-STORE-MANAGMENT
                     SET OUT-MENU-CHOICE-TRUE TO TRUE
                  WHEN 6
                     PERFORM PROC-LEAP-YEAR
                     SET OUT-MENU-CHOICE-TRUE TO TRUE
                  WHEN OTHER
                     DISPLAY "Choix invalide."
-                    DISPLAY "Sélectionner une valeur entre 1 et 9."
+                    DISPLAY "Sélectionner une valeur entre 0 et 6."
               END-EVALUATE
            END-PERFORM
            EXIT.
@@ -315,33 +330,88 @@
            EXIT.
 
        
-       PROC-SCOOL-MANAGMENT.
-           DISPLAY "Entrer chaque étudiant avec ses notes."
+       PROC-STORE-MANAGMENT.
+           PERFORM VARYING I FROM 1 BY 1 
+              UNTIL WS-IT-NAME(I) = "0" OR I > 4
+              DISPLAY " "
+              DISPLAY "Nom de l'article : "
+              ACCEPT WS-IT-NAME(I)
 
+              IF WS-IT-NAME(I) NOT = "0"
+                 DISPLAY "Prix : "
+                 ACCEPT WS-IT-PRICE(I)
+                 DISPLAY "Quantité : "
+                 ACCEPT WS-IT-QTE(I)
+                 DISPLAY "Note : "
+                 ACCEPT WS-IT-RATE(I)
+              END-IF
+           END-PERFORM
 
-           DISPLAY "Etudiant : "
-           DISPLAY "INF1 : "
-           DISPLAY "INF2 : "
-           DISPLAY "INF3 : "
+           PERFORM PROC-STORE-MENU
+           ACCEPT WS-STORE-CHOICE
+           PERFORM PROC-LOOP-STORE-CHOICE
 
-           PERFORM PROC-SCHOOL-MENU
-           ACCEPT WS-SCHOOL-CHOICE
            EXIT.
 
-       PROC-SCHOOL-MENU.
+       PROC-STORE-MENU.
            DISPLAY "--------------------------------------------------"
            DISPLAY "|                Tableau de bord                 |"
            DISPLAY "|------------------------------------------------|"
            DISPLAY "|                                                |"
-           DISPLAY "| 1 - Rechercher un étudiant (avec/sans indice). |"
-           DISPLAY "| 2 - Trier le bulletin par nom, note.           |"
-           DISPLAY "| 3 - Supprimer des valeurs dans un tableau.     |"
-           DISPLAY "| 4 - Comtper les doublons du tableau.           |"
-           DISPLAY "| 5 - Empêcher les doublons.                     |"
-           DISPLAY "| 6 - Somme, moyenne, max, min.                  |"
+           DISPLAY "| 1 - Afficher.                                  |"
+           DISPLAY "| 2 - Rechercher.                                |"
+           DISPLAY "| 3 - Trier le bulletin par nom, note.           |"
+           DISPLAY "| 4 - Supprimer des valeurs dans un tableau.     |"
+           DISPLAY "| 5 - Compter les doublons du tableau.           |"
+           DISPLAY "| 6 - Empêcher les doublons.                     |"
+           DISPLAY "| 7 - Somme, moyenne, max, min.                  |"
+           DISPLAY "| 0 - Quitter.                                   |"
            DISPLAY "|                                                |"
            DISPLAY "--------------------------------------------------"
            DISPLAY "Que voulez-vous faire?"
+           EXIT.
+
+       PROC-LOOP-STORE-CHOICE.
+           PERFORM UNTIL WS-STORE-CHOICE = 0 OR WS-OUT-OF-SCH-LOOP
+              EVALUATE WS-STORE-CHOICE
+                    WHEN 0
+                       DISPLAY " "
+                    WHEN 1
+                       PERFORM PROC-DISPLAY-ITEMS
+                       SET WS-OUT-OF-SCH-LOOP TO TRUE
+                    WHEN 2
+                       PERFORM PROC-SEARCH-ITEM
+                       SET WS-OUT-OF-SCH-LOOP TO TRUE
+                    WHEN 3
+                       PERFORM PROC-SORT-ITEMS
+                       SET WS-OUT-OF-SCH-LOOP TO TRUE
+                    WHEN 4
+                       PERFORM PROC-DELETE-ITEMS
+                       SET WS-OUT-OF-SCH-LOOP TO TRUE
+                    WHEN 5
+                       PERFORM PROC-COUNT-ITEMS
+                       SET WS-OUT-OF-SCH-LOOP TO TRUE
+                    WHEN 6
+                       PERFORM PROC-DOUBLE-ITEMS
+                       SET WS-OUT-OF-SCH-LOOP TO TRUE
+                    WHEN 7
+                       PERFORM PROC-CALC-ITEMS
+                       SET WS-OUT-OF-SCH-LOOP TO TRUE
+                    WHEN OTHER
+                       DISPLAY "Choix invalide."
+                       DISPLAY "Sélectionner une valeur entre 0 et 6."
+                 END-EVALUATE
+           END-PERFORM
+           EXIT.
+
+       PROC-DISPLAY-ITEMS.
+           MOVE 1 TO I
+           DISPLAY "Article                          Prix       "
+                 "Qte     Note"
+           PERFORM VARYING I FROM 1 BY 1 UNTIL I > 4
+              DISPLAY WS-IT-NAME(I) WS-IT-PRICE(I) "       " 
+                 WS-IT-QTE(I) "      " WS-IT-RATE(I)
+           END-PERFORM
            EXIT.
 
        PROC-LEAP-YEAR.
@@ -357,6 +427,18 @@
            END-IF
            EXIT.
 
+       PROC-SEARCH-ITEM.
+           EXIT.
+       PROC-SORT-ITEMS.
+           EXIT.
+       PROC-DELETE-ITEMS.
+           EXIT.
+       PROC-COUNT-ITEMS.
+           EXIT.
+       PROC-DOUBLE-ITEMS.
+           EXIT.
+       PROC-CALC-ITEMS.
+           EXIT.
 
       *    TODO
       *    APPROFONDISSEMENT/AMELIORATION (VERIF TOUS LES INPUTS)
