@@ -119,8 +119,17 @@
               10 WS-IT-QTE PIC ZZ9.
               10 WS-IT-RATE PIC 9V9.
        01 WS-TAB-IND PIC 9 VALUE 4.
-       01 WS-CPT-TAB PIC 9 VALUE 1.
-       01 I PIC 99 VALUE 99.
+       01 WS-TMP PIC 9(8).
+       01 I PIC 9(1).
+       01 J PIC 9(1).
+       01 WS-STOP-SORT PIC X VALUE 'N'.
+           88 WS-STOP-YES VALUE 'O'.
+           88 WS-STOP-NO VALUE 'N'.
+       01 TMP-ITEM.
+           05 TMP-NAME  PIC X(30).
+           05 TMP-PRICE PIC ZZZ9.99.
+           05 TMP-QTE   PIC ZZ9.
+           05 TMP-RATE  PIC 9V9.
 
 
       *#################################################################
@@ -137,7 +146,6 @@
               PERFORM PROC-CONTINUE UNTIL WS-FIN-PROG = "O" 
               OR WS-FIN-PROG = "N".
 
-           DISPLAY " ".
            DISPLAY "A bientôt!".
            STOP RUN.
 
@@ -151,6 +159,7 @@
            ACCEPT WS-FIN-PROG.
    
            IF WS-FIN-PROG = "N"
+              DISPLAY " "
                DISPLAY "Arrêt du programme."
            ELSE
               IF WS-FIN-PROG = "O"
@@ -208,7 +217,7 @@
            DISPLAY "4 - Triage par ordre croissant."
            DISPLAY " "
            DISPLAY "GESTION D'UN TABLEAU"
-           DISPLAY "5 - Bulettin scolaire." 
+           DISPLAY "5 - Simulation de ecommerce." 
            DISPLAY " "
            DISPLAY "CALCULS ARITHMETIQUES"
            DISPLAY "6 - Déterminer si une année est bissextile."
@@ -354,13 +363,14 @@
            EXIT.
 
        PROC-STORE-MENU.
+           DISPLAY " "
            DISPLAY "--------------------------------------------------"
            DISPLAY "|                Tableau de bord                 |"
            DISPLAY "|------------------------------------------------|"
            DISPLAY "|                                                |"
            DISPLAY "| 1 - Afficher.                                  |"
            DISPLAY "| 2 - Rechercher.                                |"
-           DISPLAY "| 3 - Trier le bulletin par nom, note.           |"
+           DISPLAY "| 3 - Trier.                                     |"
            DISPLAY "| 4 - Supprimer des valeurs dans un tableau.     |"
            DISPLAY "| 5 - Compter les doublons du tableau.           |"
            DISPLAY "| 6 - Empêcher les doublons.                     |"
@@ -368,6 +378,7 @@
            DISPLAY "| 0 - Quitter.                                   |"
            DISPLAY "|                                                |"
            DISPLAY "--------------------------------------------------"
+           DISPLAY " "
            DISPLAY "Que voulez-vous faire?"
            EXIT.
 
@@ -406,12 +417,16 @@
 
        PROC-DISPLAY-ITEMS.
            MOVE 1 TO I
+           DISPLAY " "
            DISPLAY "Article                          Prix       "
                  "Qte     Note"
+           
            PERFORM VARYING I FROM 1 BY 1 UNTIL I > 4
               DISPLAY WS-IT-NAME(I) WS-IT-PRICE(I) "       " 
                  WS-IT-QTE(I) "      " WS-IT-RATE(I)
            END-PERFORM
+           
+           DISPLAY " "
            EXIT.
 
        PROC-LEAP-YEAR.
@@ -430,6 +445,20 @@
        PROC-SEARCH-ITEM.
            EXIT.
        PROC-SORT-ITEMS.
+           PERFORM VARYING I FROM 1 BY 1 UNTIL I > 4
+              SET WS-STOP-NO TO TRUE
+              PERFORM VARYING J FROM 4 BY -1 UNTIL J < I 
+                 OR WS-STOP-YES
+                 IF WS-IT-PRICE(J) < WS-IT-PRICE(J - 1)
+                    MOVE WS-ITEMS-RECORD(J) TO TMP-ITEM
+                    MOVE WS-ITEMS-RECORD(J - 1) TO WS-ITEMS-RECORD(J)
+                    MOVE TMP-ITEM TO WS-ITEMS-RECORD(J - 1)
+                    SET WS-STOP-YES TO TRUE
+                 END-IF
+              END-PERFORM
+           END-PERFORM
+
+           PERFORM PROC-DISPLAY-ITEMS
            EXIT.
        PROC-DELETE-ITEMS.
            EXIT.
