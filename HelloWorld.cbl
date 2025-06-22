@@ -130,6 +130,10 @@
            05 TMP-PRICE PIC ZZZ9.99.
            05 TMP-QTE   PIC ZZ9.
            05 TMP-RATE  PIC 9V9.
+       01 WS-NAME-SEARCH PIC X(30).
+       01 WS-IS-NAME-FOUND PIC X VALUE 'N'.
+           88 WS-FOUNDED VALUE 'O'.
+           88 WS-NOT-FOUND VALUE 'N'.
 
 
       *#################################################################
@@ -154,8 +158,7 @@
       *    FUNCTIONS
       *#################################################################
        PROC-CONTINUE.
-           DISPLAY "Voulez-vous continuer ? (O/N)".
-   
+           DISPLAY "Voulez-vous continuer (O/N)? " WITH NO ADVANCING.
            ACCEPT WS-FIN-PROG.
    
            IF WS-FIN-PROG = "N"
@@ -174,7 +177,7 @@
            
        PROC-SELECT-MENU.
            PERFORM UNTIL WS-CHOICE = 0 OR OUT-MENU-CHOICE-TRUE
-              DISPLAY "Votre choix : "
+              DISPLAY "Votre choix : " WITH NO ADVANCING
               ACCEPT WS-CHOICE
               
               EVALUATE WS-CHOICE
@@ -210,19 +213,17 @@
            DISPLAY "       MENU       "
            DISPLAY "##################"
            DISPLAY " "
-           DISPLAY "MANIPULATION DE FICHIERS"
+      *    MANIPULATION DE FICHIERS
            DISPLAY "1 - Lecture d'un fichier."
            DISPLAY "2 - Enregistrement des notes des étudiants."
            DISPLAY "3 - Copie d'un fichier."
            DISPLAY "4 - Triage par ordre croissant."
-           DISPLAY " "
-           DISPLAY "GESTION D'UN TABLEAU"
-           DISPLAY "5 - Simulation de ecommerce." 
-           DISPLAY " "
-           DISPLAY "CALCULS ARITHMETIQUES"
+      *    GESTION D'UN TABLEAU
+           DISPLAY "5 - Simulation de ecommerce."
+      *    CALCULS ARITHMETIQUES
            DISPLAY "6 - Déterminer si une année est bissextile."
-           DISPLAY " "
            DISPLAY "0 - Quitter."
+           DISPLAY " "
            EXIT.
 
        PROC-IS-LEAP-YEAR.
@@ -266,17 +267,17 @@
 
            PERFORM UNTIL FS-ST-NAME = "0"
               DISPLAY " "
-              DISPLAY "Nom de l'étudiant : "
+              DISPLAY "Nom de l'étudiant : " WITH NO ADVANCING
               ACCEPT FS-ST-NAME
 
               IF FS-ST-NAME NOT = "0"
-                 DISPLAY "    Mathématiques : "
+                 DISPLAY "    Mathématiques : " WITH NO ADVANCING
                  ACCEPT FS-ST-MATHS
-                 DISPLAY "    Physiques : "
+                 DISPLAY "    Physiques : " WITH NO ADVANCING
                  ACCEPT FS-ST-PHYS
-                 DISPLAY "    SVT : "
+                 DISPLAY "    SVT : " WITH NO ADVANCING
                  ACCEPT FS-ST-SVT
-                 DISPLAY "    Philosophie : "
+                 DISPLAY "    Philosophie : " WITH NO ADVANCING
                  ACCEPT FS-ST-PHILO
                  PERFORM PROC-WRITE
               END-IF   
@@ -343,15 +344,15 @@
            PERFORM VARYING I FROM 1 BY 1 
               UNTIL WS-IT-NAME(I) = "0" OR I > 4
               DISPLAY " "
-              DISPLAY "Nom de l'article : "
+              DISPLAY "Nom de l'article : " WITH NO ADVANCING
               ACCEPT WS-IT-NAME(I)
 
               IF WS-IT-NAME(I) NOT = "0"
-                 DISPLAY "Prix : "
+                 DISPLAY "Prix : " WITH NO ADVANCING
                  ACCEPT WS-IT-PRICE(I)
-                 DISPLAY "Quantité : "
+                 DISPLAY "Quantité : " WITH NO ADVANCING
                  ACCEPT WS-IT-QTE(I)
-                 DISPLAY "Note : "
+                 DISPLAY "Note : " WITH NO ADVANCING
                  ACCEPT WS-IT-RATE(I)
               END-IF
            END-PERFORM
@@ -379,7 +380,7 @@
            DISPLAY "|                                                |"
            DISPLAY "--------------------------------------------------"
            DISPLAY " "
-           DISPLAY "Que voulez-vous faire?"
+           DISPLAY "Votre choix : " WITH NO ADVANCING
            EXIT.
 
        PROC-LOOP-STORE-CHOICE.
@@ -429,21 +430,22 @@
            DISPLAY " "
            EXIT.
 
-       PROC-LEAP-YEAR.
-           DISPLAY "Année : "
-           ACCEPT WS-YEAR
-
-           IF FUNCTION MOD (WS-YEAR, 4) = 0
-              AND (FUNCTION MOD (WS-YEAR, 100) NOT = 0
-                 OR FUNCTION MOD (WS-YEAR, 400) = 0)
-              DISPLAY WS-YEAR " est une année bissextile."
-           ELSE
-              DISPLAY WS-YEAR " n'est pas une année bissextile."
-           END-IF
-           EXIT.
-
        PROC-SEARCH-ITEM.
+           DISPLAY " "
+           DISPLAY "Quel nom cherchez-vous? " WITH NO ADVANCING
+           ACCEPT WS-NAME-SEARCH
+           DISPLAY " "
+
+           PERFORM VARYING I FROM 1 BY 1 UNTIL I > 4 OR WS-FOUNDED
+              IF WS-IT-NAME(I) = WS-NAME-SEARCH
+                 DISPLAY "Utilisateur trouvé : " WS-IT-NAME(I) 
+                 WS-IT-PRICE(I) "       " WS-IT-QTE(I) "      " 
+                 WS-IT-RATE(I)
+                 DISPLAY " "
+              END-IF
+           END-PERFORM
            EXIT.
+
        PROC-SORT-ITEMS.
            PERFORM VARYING I FROM 1 BY 1 UNTIL I > 4
               SET WS-STOP-NO TO TRUE
@@ -467,6 +469,19 @@
        PROC-DOUBLE-ITEMS.
            EXIT.
        PROC-CALC-ITEMS.
+           EXIT.
+
+       PROC-LEAP-YEAR.
+           DISPLAY "Année : "
+           ACCEPT WS-YEAR
+
+           IF FUNCTION MOD (WS-YEAR, 4) = 0
+              AND (FUNCTION MOD (WS-YEAR, 100) NOT = 0
+                 OR FUNCTION MOD (WS-YEAR, 400) = 0)
+              DISPLAY WS-YEAR " est une année bissextile."
+           ELSE
+              DISPLAY WS-YEAR " n'est pas une année bissextile."
+           END-IF
            EXIT.
 
       *    TODO
